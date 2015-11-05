@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>arrow.png</file>
+        <file>eraser.png</file>
+        <file>starting.png</file>
+        <file>terminal.png</file>
+        <file>brush.png</file>
+    </qresource>
+</RCC>

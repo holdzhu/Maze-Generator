@@ -1,0 +1,49 @@
+#include "mazewidget.h"
+
+MazeWidget::MazeWidget(QWidget *parent) : QWidget(parent), drawing(false), isMouseDown(false)
+{
+
+}
+
+void MazeWidget::setDrawStatus(bool drawing)
+{
+    this->drawing = drawing;
+}
+
+void MazeWidget::mousePressEvent(QMouseEvent *event)
+{
+    isMouseDown = true;
+    lastPos = event->pos();
+    QWidget::mousePressEvent(event);
+}
+
+void MazeWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+    isMouseDown = false;
+    QWidget::mouseReleaseEvent(event);
+}
+
+void MazeWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    QWidget::mouseMoveEvent(event);
+}
+
+void MazeWidget::paintEvent(QPaintEvent *event)
+{
+    QPainter painter(this);
+    painter.drawImage(0, 0, pathImage);
+    QWidget::paintEvent(event);
+}
+
+void MazeWidget::leaveEvent(QEvent *event)
+{
+    isMouseDown = false;
+    QWidget::leaveEvent(event);
+}
+
+void MazeWidget::resizeEvent(QResizeEvent *event)
+{
+    pathImage = QImage(size(), QImage::Format_RGB888);
+    pathImage.fill(Qt::white);
+}
+
