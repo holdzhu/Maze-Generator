@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QtWidgets>
+#include "mazewidget.h"
 
 class MyView : public QGraphicsView
 {
@@ -10,9 +11,13 @@ class MyView : public QGraphicsView
 public:
     MyView(QGraphicsScene *scene);
 
+public slots:
+    void setDrawStatus(MazeWidget::DrawStatus status);
+
 private:
     bool space;
     bool mousePress;
+    MazeWidget::DrawStatus status;
 
     // QWidget interface
 protected:

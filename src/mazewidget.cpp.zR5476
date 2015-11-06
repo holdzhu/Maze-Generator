@@ -42,7 +42,6 @@ void MazeWidget::setError(int error)
 
 void MazeWidget::generate()
 {
-    qsrand((int)thread());
     showResult = true;
     int height = pathPixmap.height();
     int width = pathPixmap.width();
@@ -70,7 +69,7 @@ void MazeWidget::generate()
                     int ny = j + dy[k];
                     if (isValid(nx, ny) && !(nx == 0 || nx == height - 1 || ny == 0 || ny == width - 1))
                     {
-                        pq.push(std::make_pair(std::make_pair(qrand(), width * height),
+                        pq.push(std::make_pair(std::make_pair(rand(), width * height),
                                                std::make_pair(std::make_pair(nx, ny), std::make_pair(i, j))));
                     }
                 }
@@ -113,19 +112,18 @@ void MazeWidget::generate()
         wall[x][y] = true;
         resultImage.setPixel(y, x, qRgb(0, 0, 0));
         update();
+        setFocus();
         for (int i = 0; i < 4; ++i)
         {
             int nx = x + dx[i];
             int ny = y + dy[i];
             if (isValid(nx, ny) && !wall[nx][ny])
             {
-                pq.push(std::make_pair(std::make_pair(qrand(), s - 1),
+                pq.push(std::make_pair(std::make_pair(rand(), s - 1),
                                        std::make_pair(std::make_pair(nx, ny), std::make_pair(x, y))));
             }
         }
     }
-    moveToThread(qApp->thread());
-    setFocus();
 }
 
 void MazeWidget::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -252,8 +250,7 @@ void MazeWidget::save()
     paint(&painter, &styleOption, NULL);
     painter.end();
     QString path = QFileDialog::getSaveFileName(NULL, tr("Save Image"), tr(""), tr("Image(*.png)"));
-    if (path.length() > 0)
-        image.save(path);
+    image.save(path);
 }
 
 

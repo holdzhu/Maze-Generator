@@ -5,7 +5,6 @@
 #include <QtWidgets>
 #include <vector>
 #include <queue>
-#include "mazegeneratorthread.h"
 
 class MazeWidget : public QObject, public QGraphicsItem
 {
@@ -20,7 +19,6 @@ public:
         TERMINAL
     };
     MazeWidget();
-    void generate(qreal distance, int error);
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
     void resize(int width, int height);
@@ -33,6 +31,9 @@ public slots:
     void setDrawStatus(MazeWidget::DrawStatus status);
     void setPathVisibility(bool pathVisibility);
     void clear();
+    void generate();
+    void setDistance(int distance);
+    void setError(int error);
 
     // QWidget interface
 protected:
@@ -52,6 +53,8 @@ private:
     QPointF startingPos;
     QPointF terminalPos;
     QSize _size;
+    qreal distance;
+    int error;
     bool pathVisibility;
 
     // QGraphicsItem interface

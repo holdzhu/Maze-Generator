@@ -15,13 +15,11 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     mazewidget.cpp \
-    myview.cpp \
-    mazegeneratorthread.cpp
+    myview.cpp
 
 HEADERS  += mainwindow.h \
     mazewidget.h \
-    myview.h \
-    mazegeneratorthread.h
+    myview.h
 
 RESOURCES += \
     resourses.qrc

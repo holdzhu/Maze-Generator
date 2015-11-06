@@ -1,9 +1,27 @@
 #include "myview.h"
 
-MyView::MyView(QGraphicsScene *scene) : QGraphicsView(scene), space(false), mousePress(false)
+MyView::MyView(QGraphicsScene *scene) : QGraphicsView(scene), space(false), mousePress(false),
+    status(MazeWidget::ARROW)
 {
     setMouseTracking(true);
     setRenderHint(QPainter::SmoothPixmapTransform);
+    setDragMode(QGraphicsView::ScrollHandDrag);
+    setInteractive(false);
+}
+
+void MyView::setDrawStatus(MazeWidget::DrawStatus status)
+{
+    this->status = status;
+    if (status == MazeWidget::ARROW)
+    {
+        setDragMode(QGraphicsView::ScrollHandDrag);
+        setInteractive(false);
+    }
+    else
+    {
+        setDragMode(QGraphicsView::NoDrag);
+        setInteractive(true);
+    }
 }
 
 void MyView::mousePressEvent(QMouseEvent *event)
@@ -20,8 +38,11 @@ void MyView::mousePressEvent(QMouseEvent *event)
 void MyView::mouseReleaseEvent(QMouseEvent *event)
 {
     mousePress = false;
-    setDragMode(QGraphicsView::NoDrag);
-    setInteractive(true);
+    if (space && status != MazeWidget::ARROW)
+    {
+        setDragMode(QGraphicsView::NoDrag);
+        setInteractive(true);
+    }
     QGraphicsView::mouseReleaseEvent(event);
 }
 

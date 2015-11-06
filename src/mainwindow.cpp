@@ -13,7 +13,8 @@ MainWindow::MainWindow(QWidget *parent)
     aboutAction->setToolTip(tr("About"));
     aboutAction->setStatusTip(tr("About"));
     helpMenu->addAction(aboutAction);
-    QToolBar *toolBar = this->addToolBar("Tools");
+    QToolBar *toolBar = new QToolBar("Tool", this);
+    this->addToolBar(Qt::LeftToolBarArea, toolBar);
     QActionGroup *group = new QActionGroup(toolBar);
     QAction *arrowAction = new QAction(tr("Arrow"), toolBar);
     arrowAction->setIcon(QIcon(":/arrow.png"));
@@ -53,13 +54,17 @@ MainWindow::MainWindow(QWidget *parent)
     group->addAction(terminalAction);
     QToolBar *propertyBar = this->addToolBar("Property");
     QLabel *widthLabel = new QLabel(tr("Width: "));
+    widthLabel->setAlignment(Qt::AlignCenter);
     widthEdit = new QLineEdit(tr("600"));
     widthEdit->setFixedWidth(32);
     widthEdit->setValidator(new QIntValidator(1, 9999));
+    widthEdit->setAlignment(Qt::AlignCenter);
     QLabel *heightLabel = new QLabel(tr("Height: "));
+    heightLabel->setAlignment(Qt::AlignCenter);
     heightEdit = new QLineEdit(tr("500"));
     heightEdit->setFixedWidth(32);
     heightEdit->setValidator(new QIntValidator(1, 9999));
+    heightEdit->setAlignment(Qt::AlignCenter);
     showPathCheck = new QCheckBox(tr("Show path"));
     propertyBar->addWidget(widthLabel);
     propertyBar->addWidget(widthEdit);
@@ -74,6 +79,7 @@ MainWindow::MainWindow(QWidget *parent)
     clearAction->setToolTip(tr("Clear"));
     clearAction->setStatusTip(tr("Clear"));
     QLabel *distanceLabel = new QLabel(tr("Distance"));
+    distanceLabel->setAlignment(Qt::AlignCenter);
     distanceSlider = new QSlider();
     distanceSlider->setMinimum(2);
     distanceSlider->setMaximum(20);
@@ -81,6 +87,7 @@ MainWindow::MainWindow(QWidget *parent)
     distanceSlider->setFixedWidth(60);
     distanceSlider->setOrientation(Qt::Horizontal);
     QLabel *errorLabel = new QLabel(tr("Error"));
+    errorLabel->setAlignment(Qt::AlignCenter);
     errorSlider = new QSlider();
     errorSlider->setMinimum(0);
     errorSlider->setMaximum(20);
@@ -108,6 +115,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(generateAction, SIGNAL(triggered(bool)), SLOT(generateActionTriggered()));
     connect(saveAction, SIGNAL(triggered(bool)), SLOT(saveActionTriggered()));
     connect(aboutAction, SIGNAL(triggered(bool)), SLOT(aboutActionTriggered()));
+    connect(distanceSlider, SIGNAL(valueChanged(int)), mazeWidget, SLOT(setDistance(int)));
+    connect(errorSlider, SIGNAL(valueChanged(int)), mazeWidget, SLOT(setError(int)));
     QGraphicsScene *scene = new QGraphicsScene();
     scene->addItem(mazeWidget);
     view = new MyView(scene);
@@ -115,8 +124,11 @@ MainWindow::MainWindow(QWidget *parent)
     this->setCentralWidget(view);
     connect(this, SIGNAL(changeDrawStatus(MazeWidget::DrawStatus)),
             mazeWidget, SLOT(setDrawStatus(MazeWidget::DrawStatus)));
+    connect(this, SIGNAL(changeDrawStatus(MazeWidget::DrawStatus)),
+            view, SLOT(setDrawStatus(MazeWidget::DrawStatus)));
     mazeWidget->resize(600, 500);
     resize(800, 600);
+    qRegisterMetaType<MazeWidget::DrawStatus>("MazeWidget::DrawStatus");
 }
 
 void MainWindow::arrowActionTriggered()
@@ -151,7 +163,13 @@ void MainWindow::resizeActionTriggered()
 
 void MainWindow::generateActionTriggered()
 {
-    mazeWidget->generate(distanceSlider->value(), errorSlider->value());
+    if (mazeWidget->thread() != qApp->thread())
+        return;
+    QThread *thread = new QThread();
+    mazeWidget->moveToThread(thread);
+    connect(thread, SIGNAL(started()), mazeWidget, SLOT(generate()));
+    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+    thread->start();
 }
 
 void MainWindow::saveActionTriggered()
